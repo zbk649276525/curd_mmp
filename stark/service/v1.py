@@ -1,7 +1,9 @@
 from django.conf.urls import url
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse,render
 
 class  StarkConfig(object):
+    list_display = []
+
     def __init__(self,model_class,site):
         self.model_class = model_class
         self.site =site
@@ -16,8 +18,41 @@ class  StarkConfig(object):
         ]
         return url_patterns
 
+    @property
+    def urls(self):
+        return self.get_urls()
+
+    #-----------处理请求的方法-----------------
+
     def changelist_view(self,request,*args,**kwargs):
-        return HttpResponse('列表')
+        #处理表头
+        head_list = []
+        for field_name in self.list_display:
+            if isinstance(field_name,str):
+                #根据类和字段名称，获取字段对象的verbose_name
+                verbose_name = self.model_class._meta.get_field(field_name).verbose_name
+            else:
+                verbose_name = field_name(self,is_header=True)
+            head_list.append(verbose_name)
+            
+        #处理表中的数据
+        # [ UserInfoObj,UserInfoObj,UserInfoObj,UserInfoObj,]
+        # [ UserInfo(id=1,name='alex',age=18),UserInfo(id=2,name='alex2',age=181),]
+        data_list = self.model_class.objects.all()
+        new_data_list = []
+        for row in data_list:
+            #row 是 Userinfo(id=2,name='alex2'，age=191)
+            #row.id,row.name.row.age
+            temp=[]
+            for field_name in self.list_display:
+                if isinstance(field_name,str):
+                    val = getattr(row,field_name) #反射
+                else:
+                    val = field_name(self,row)
+                temp.append(val)
+            new_data_list.append(temp)
+        return render(request,'stark/changelist.html',{'data_list':new_data_list,'head_list':head_list})
+    
     def add_view(self,request,*args,**kwargs):
         return HttpResponse('添加')
     def delete_view(self,request,*args,**kwargs):
@@ -25,9 +60,7 @@ class  StarkConfig(object):
     def change_view(self,request,*args,**kwargs):
         return HttpResponse('修改')
 
-    @property
-    def urls(self):
-        return self.get_urls()
+
 
 
 class StarkSite(object):
