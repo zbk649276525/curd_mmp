@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.shortcuts import HttpResponse, render
+from django.shortcuts import HttpResponse, render,redirect
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 
@@ -31,9 +31,18 @@ class StarkConfig(object):
             data.insert(0, StarkConfig.checkbox)
         return data
 
+    #2. 是否显示添加按钮
+    show_add_btn = True
+
+    def get_show_add_btn(self):
+        return self.show_add_btn
+
+
     def __init__(self, model_class, site):
         self.model_class = model_class
         self.site = site
+
+#--------------- url  相关-------------------------
 
     def get_urls(self):
         app_model_name = (self.model_class._meta.app_label, self.model_class._meta.model_name)
@@ -59,7 +68,7 @@ class StarkConfig(object):
         return edit_url
 
     def get_list_url(self):
-        name = "stark:%s_%s_changlist" % (self.model_class._meta.app_label, self.model_class._meta.model_name,)
+        name = "stark:%s_%s_changelist" % (self.model_class._meta.app_label, self.model_class._meta.model_name,)
         edit_url = reverse(name)
         return edit_url
 
@@ -102,10 +111,28 @@ class StarkConfig(object):
                     val = field_name(self, row)
                 temp.append(val)
             new_data_list.append(temp)
-        return render(request, 'stark/changelist.html', {'data_list': new_data_list, 'head_list': head_list})
+
+        return render(request, 'stark/changelist.html',
+                      {'data_list': new_data_list,
+                       'head_list': head_list,
+                       'add_url':self.get_add_url(),
+                       'show_add_btn':self.get_show_add_btn()})
 
     def add_view(self, request, *args, **kwargs):
-        return HttpResponse('添加')
+        from django.forms import ModelForm
+        class TestModelForm(ModelForm):
+            class Meta:
+                model = self.model_class
+                fields = "__all__"
+        if request.method == "GET":
+            form = TestModelForm()
+            return render(request,'stark/add_view.html',{'form':form})
+        else:
+            form = TestModelForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect(self.get_list_url())
+            return render(request,'stark/add_view.html',{'form':form})
 
     def delete_view(self, request, *args, **kwargs):
         return HttpResponse('删除')

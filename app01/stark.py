@@ -6,7 +6,9 @@ from django.conf.urls import url
 
 class UserInfoConfig(v1.StarkConfig):
 
-    list_display =['id','name',]
+    list_display =['id','name','age','email','ut']
+
+    show_add_btn = True
 
     # def extra_url(self):
     #     url_list = [
