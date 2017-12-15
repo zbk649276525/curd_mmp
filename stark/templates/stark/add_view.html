@@ -7,14 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>添加页面</title>
     <link rel="stylesheet" href="{% static "stark/bootstrap/css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "stark/css/stark-form.css"%}">
 
 </head>
 <body>
+{#方法一：#}
+{#    <h1>添加页面</h1>#}
+{#    <form action="" method="post">#}
+{#        {% csrf_token %}#}
+{#        {{ form.as_p }}#}
+{#        <input type="submit" value="提交">#}
+{#    </form>#}
+
+{#//方法二：#}
+<div class="container">
     <h1>添加页面</h1>
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="提交">
-    </form>
+    {% include 'stark/form.html' %}
+</div>
 </body>
 </html>
