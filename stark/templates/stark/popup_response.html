@@ -8,8 +8,11 @@
 </head>
 <body>
 <script>
+    //自执行函数
     (function () {
-        
+        var dic = {{ json_result|safe }};   //用一个字典的形式来存值，后台的东西在页面上就以转义方式展示了，safe就是以原生的形式显示
+        opener.popupCallback(dic);  //回调函数  回传的内容：  新增的数据
+        window.close();
     })()
 </script>
 </body>

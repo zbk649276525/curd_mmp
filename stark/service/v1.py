@@ -80,7 +80,7 @@ class FilterRow(object):
                     id_list.remove(pk)  #把自己移除掉
                     _params.setlist(self.option.field_name, id_list)    #在设置到初始值里
                     url = "{0}?{1}".format(self.request.path_info, _params.urlencode())
-                    yield mark_safe("<a class='active' href='{0}'></a>".format(url, text))
+                    yield mark_safe("<a class='active' href='{0}'>{1}</a>".format(url, text))
                 else:
                     id_list.append(pk)  #[1,2,3]
                     _params.setlist(self.option.field_name, id_list)  # params中被重新赋值
@@ -450,23 +450,24 @@ class StarkConfig(object):
     def add_view(self, request, *args, **kwargs):
 
         model_form_class = self.get_model_form_class()
-        # _popbackid = request.GET.get('_popbackid')  #pop 返回的id
+        _popbackid = request.GET.get('_popbackid')  #pop 返回的id
         if request.method == "GET":
-            form = model_form_class()
+            form = model_form_class()   #form是实例化的对象。   可以被循环，拿到相应的form字段
             return render(request, 'stark/add_view.html', {'form': form})
         else:
             form = model_form_class(request.POST)
             if form.is_valid():
                 #数据库中创建数据
-                new_obj = form.save()
-                # if _popbackid:
+                new_obj = form.save()   #返回值就是新创建的那条数据
+                if _popbackid:
                     #是popup 请求
-                    #render一个页面，写自执行函数
-                    # result = {'id':new_obj.pk,'text':str(new_obj),'popbackid':_popbackid}
-                    # return render(request,'stark/popup_response.html',{'json_result':json.dumps(result,ensure_ascii=False)})
-                # else:
-                return redirect(self.get_list_url())
-            return render(request, 'stark/add_view.html', {'form': form})
+                    # render一个页面，写自执行函数， 用于把数据回传到页面
+                    result = {'id':new_obj.pk,'text':str(new_obj),'popbackid':_popbackid}   #把新创建的数据的： id，内容，标签id。拿到
+                    return render(request,'stark/popup_response.html',{'json_result':json.dumps(result,ensure_ascii=False)})
+                    #ensure_ascii =True  用于取消json自己帮我们转义显示。
+                else:
+                    return redirect(self.get_list_url())
+            return render(request, 'stark/add_view.html', {'form': form})   #form 需要加工之后在返回
 
     def delete_view(self, request, nid, *args, **kwargs):
         self.model_class.objects.filter(pk=nid).delete()

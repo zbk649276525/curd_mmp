@@ -1,19 +1,22 @@
 <form action="" method="post" class="form-horizontal" novalidate>
     {% csrf_token %}
     {#循环form对象#}
-    {% for field in form %}
+    {% for dic in form %}
         <div class="col-md-6">
             <div class="form-group">
-                <label for="inputEmail3" class="col-md-2 control-label">{{ field.label }}</label>
-                <div class="col-md-10">
+                <label for="inputEmail3" class="col-md-2 control-label">{{ dic.item.field.label }}</label>
+                <div class="col-md-10" style="position:relative">
                     <!--判断，如果field是ModelChoiceField， 则FK;  如果是ModelMultipleChoiceField, 则 M2M -->
-                    {{ field }}
-                    {{ field.errors.0 }}
-{#                    {{ dic.item }}#}
-{#                    {% if dic.is_popup %}#}
-{#                        <a onclick="popUp('{{ dic.popip_url }}')">popup</a>#}
-{#                    {% endif %}#}
-{#                    {{ dic.item.field.errors.0 }}#}
+{#                    {{ field }}#}
+{#                    {{ field.errors.0 }}#}
+                    {{ dic.item }}
+                    {% if dic.is_popup %}
+                        <div style="position:absolute; right:-5px; top: 8px; z-index:9999;">
+                            <a onclick="popUp('{{ dic.popup_url }}');" class="glyphicon glyphicon-plus"></a>
+                        </div>
+
+                    {% endif %}
+                    {{ dic.item.field.errors.0 }}
                 </div>
             </div>
         </div>
@@ -24,19 +27,21 @@
     </div>
 
 </form>
-{#<script>#}
-{#    function popupCallback(dic) {#}
-{#        var op = document.createElement('option');#}
-{#        op.value = dic.id;#}
-{#        op.text = dic.text;#}
-{#        op.setAttribute('selected','selected');#}
-{#        document.getElementById(dic,popbackid).appendChild(op)#}
-{#    }#}
-{##}
-{#    function popUp(url) {#}
-{#        var popupPage = window.open(url,url,"status=1,height:400,width:400,toolbar=0,resizeable=0")#}
-{#    }#}
-{##}
-{#    #}
-{##}
-{#</script>#}
+<script>
+    //回调的函数
+    function popupCallback(dic) {
+        var op = document.createElement('option');  //创建一个option
+        op.value = dic.id;  //id
+        op.text = dic.text; //文本
+        op.setAttribute('selected','selected'); //默认选中
+        document.getElementById(dic.popbackid).appendChild(op)  //找到文本框把新内容加进去
+    }
+
+    function popUp(url) {
+        var popupPage = window.open(url,url,"status=1,height:400,width:400,toolbar=0,resizeable=0")
+            //添加页面的生成
+    }
+
+
+
+</script>
