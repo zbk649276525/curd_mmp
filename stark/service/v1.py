@@ -108,7 +108,7 @@ class ChangeList(object):
 
         from curd_mmp.pager import Pagination
         current_page = self.request.GET.get('page', 1)
-        print(current_page,'.................')
+        
         total_count = queryset.count()
         pager_obj = Pagination(current_page,
                                total_count,
@@ -117,7 +117,7 @@ class ChangeList(object):
                                )
         self.pager_obj = pager_obj
         self.data_list = queryset[pager_obj.start:pager_obj.end]
-        print(self.data_list,'***************')
+        
 
     # 改造actions
     def modify_actions(self):
@@ -432,14 +432,16 @@ class StarkConfig(object):
         comb_condition = {} #用来构造搜索条件
         option_list = self.get_comb_filter()    #用来做判断
         for key in request.GET.keys():  #通过拿 key， request.GET.keys 传多个参数我们都可以拿到
+
             value_list = request.GET.getlist(key)
             flag = False
             for option in option_list:
-                flag = True  #不在就忽略
-                break
+                if option.field_name == key:
+                    flag = True
+                    break
             if flag:    #如果在我们的配置里
                 comb_condition["%s__in" % key] = value_list  #就需要构造条件       {'gender__in':[1],'depart__in:':[5,8]}
-
+        print(comb_condition,'*********************88')
         queryset = self.model_class.objects.filter(self.get_search_condition()).filter(
             **comb_condition).distinct()  # 过滤条件
         c1 = ChangeList(self, queryset)

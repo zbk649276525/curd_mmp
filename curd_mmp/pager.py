@@ -10,7 +10,7 @@ class Pagination(object):
     """
     自定义分页
     """
-    per_page_count = 1
+    per_page_count = 2
     max_pager_count = 11
     def __init__(self,current_page,total_count,base_url,params):
     #current_page:当前页。total_count:总条数。base_url: 对应的路径。params:保存搜索条件
