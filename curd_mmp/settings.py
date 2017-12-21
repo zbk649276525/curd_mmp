@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'stark.apps.StarkConfig',
     'app01.apps.App01Config',
+    'pure_pagination',
+    'app02'
 ]
 
 MIDDLEWARE = [
@@ -125,3 +127,4 @@ STATIC_URL = '/static/'
 STATICFIELS_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
+
